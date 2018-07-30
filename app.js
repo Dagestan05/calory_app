@@ -27,6 +27,21 @@ const ItemCtrl = (function() {
     getItems: function(){
       return data.items;
     },
+    addItem: function(name, calories){
+      //Create ID
+      let ID;
+      if (data.items.length > 0) {
+        ID = data.items[data.items.length -1].id + 1;
+      } else {
+        ID = 0;
+      }
+      calories = parseInt(calories);
+      //Create new item with our constructor
+      newItem = new Item(ID, name, calories);
+      data.items.push(newItem);
+
+      return newItem;
+    },
     logData: function() {
       return data;
     },
@@ -38,7 +53,10 @@ const ItemCtrl = (function() {
 ////////////////
 const UICtrl = (function() {
   const UISelectors = {
-    itemList: '#item-list'
+    itemList: document.querySelector('#item-list'),
+    addBtn: document.querySelector(".add-btn"),
+    itemNameInput: document.querySelector("#item-name"),
+    itemCaloriesInput: document.querySelector("#item-calories"),
   }
   //Public methods
   return{
@@ -53,7 +71,16 @@ const UICtrl = (function() {
         `
       });
       //Insert list items
-      document.querySelector(UISelectors.itemList).innerHTML = html
+      UISelectors.itemList.innerHTML = html
+    },
+    getItemInput: function(){
+      return{
+        name: UISelectors.itemNameInput.value,
+        calories: UISelectors.itemCaloriesInput.value
+      }
+    },
+    getUISelectors: function(){
+      return UISelectors;
     }
   }
 })()
@@ -62,6 +89,32 @@ const UICtrl = (function() {
 // App Controller
 /////////////////
 const AppCtrl = (function(ItemCtrl, UICtrl) {
+
+  //Load event Listeners
+  const loadEventListeners = function(){
+    //Get UISelectors from UICtrl module & store in var
+    const UISelectors = UICtrl.getUISelectors();
+
+    // Add item events
+    UISelectors.addBtn.addEventListener("click", itemAddSubmit);
+  }
+  //Add item submit func
+  const itemAddSubmit = function(e){
+    // get from input from UICtrl
+    const input = UICtrl.getItemInput();
+    //check for not empty inputs
+    if (input.name !== '' && input.calories !== '') {
+      //Add item to datat struct
+      ItemCtrl.addItem(input.name, input.calories);
+
+
+    }
+
+
+    e.preventDefault();
+  }
+
+
 
   //Public Methods
   return {
@@ -72,6 +125,8 @@ const AppCtrl = (function(ItemCtrl, UICtrl) {
 
       //Populate list with items
       UICtrl.populateItemList(items)
+
+      loadEventListeners();
     }
   }
 })(ItemCtrl, UICtrl)
