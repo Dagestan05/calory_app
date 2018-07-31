@@ -14,9 +14,9 @@ const ItemCtrl = (function() {
   //Data structure / State
   const data = {
     items: [
-      {id: 0, name: 'Pizza', calories: 800},
-      {id: 1, name: 'Cookies', calories: 350},
-      {id: 2, name: 'Soup', calories: 640},
+      // {id: 0, name: 'Pizza', calories: 800},
+      // {id: 1, name: 'Cookies', calories: 350},
+      // {id: 2, name: 'Soup', calories: 640},
     ],
     currentItem: null,
     totalCalories: 0,
@@ -79,6 +79,28 @@ const UICtrl = (function() {
         calories: UISelectors.itemCaloriesInput.value
       }
     },
+    addListItem: function(newItem){
+      UISelectors.itemList.style.display = 'block';
+      //Create li element
+      const newLi = document.createElement("li");
+      newLi.className = 'collection-item';
+      newLi.id = `item-${newItem.id}`;
+      // Add html
+      newLi.innerHTML = `
+      <strong>${newItem.name}:</strong> <em>${newItem.calories} Calories</em>
+      <a href="#" class="secondary-content"><i class="fa fa-pencil edit-item"></i></a>
+      `
+      //insert to ul
+      UISelectors.itemList.insertAdjacentElement('beforeend', newLi)
+      
+    },
+    clearInputFields: function(){
+      UISelectors.itemNameInput.value = '';
+      UISelectors.itemCaloriesInput.value = '';
+    },
+    hideEmptyList: function(){
+      UISelectors.itemList.style.display = 'none';
+    },
     getUISelectors: function(){
       return UISelectors;
     }
@@ -104,10 +126,12 @@ const AppCtrl = (function(ItemCtrl, UICtrl) {
     const input = UICtrl.getItemInput();
     //check for not empty inputs
     if (input.name !== '' && input.calories !== '') {
-      //Add item to datat struct
-      ItemCtrl.addItem(input.name, input.calories);
-
-
+      //Add item to data struct
+      const newItem = ItemCtrl.addItem(input.name, input.calories);
+      //Add item to UI list
+      UICtrl.addListItem(newItem);
+      //clear input fields
+      UICtrl.clearInputFields();
     }
 
 
@@ -122,9 +146,13 @@ const AppCtrl = (function(ItemCtrl, UICtrl) {
       console.log("Initializing App ...")
       //Fetch items from data structure
       const items = ItemCtrl.getItems();
-
-      //Populate list with items
-      UICtrl.populateItemList(items)
+      //check if any items in data
+      if (items.length < 1) {
+        UICtrl.hideEmptyList();
+      } else {
+        //Populate list with items
+        UICtrl.populateItemList(items)
+      }
 
       loadEventListeners();
     }
