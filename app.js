@@ -42,6 +42,17 @@ const ItemCtrl = (function() {
 
       return newItem;
     },
+    getTotalCalories: function(){
+      let total = 0;
+      data.items.forEach(item =>{
+        total += item.calories;
+      })
+      //set total calories in data structure
+      data.totalCalories = total;
+      //return total calories
+      return data.totalCalories;
+    }
+    ,
     logData: function() {
       return data;
     },
@@ -55,8 +66,12 @@ const UICtrl = (function() {
   const UISelectors = {
     itemList: document.querySelector('#item-list'),
     addBtn: document.querySelector(".add-btn"),
+    updateBtn: document.querySelector(".update-btn"),
+    deleteBtn: document.querySelector(".delete-btn"),
+    backBtn: document.querySelector(".back-btn"),
     itemNameInput: document.querySelector("#item-name"),
     itemCaloriesInput: document.querySelector("#item-calories"),
+    totalCalories: document.querySelector(".total-calories"),
   }
   //Public methods
   return{
@@ -101,6 +116,16 @@ const UICtrl = (function() {
     hideEmptyList: function(){
       UISelectors.itemList.style.display = 'none';
     },
+    showTotalCalories: function(totalCalories){
+      UISelectors.totalCalories.textContent = totalCalories;
+    },
+    setInitialUIState: function(){ //func to initially hide edit mode of app
+      UICtrl.clearInputFields();
+      UISelectors.addBtn.style.display = 'inline';
+      UISelectors.updateBtn.style.display = 'none';
+      UISelectors.deleteBtn.style.display = 'none';
+      UISelectors.backBtn.style.display = 'none';
+    },
     getUISelectors: function(){
       return UISelectors;
     }
@@ -130,6 +155,10 @@ const AppCtrl = (function(ItemCtrl, UICtrl) {
       const newItem = ItemCtrl.addItem(input.name, input.calories);
       //Add item to UI list
       UICtrl.addListItem(newItem);
+      //Get total calories
+      const totalCalories = ItemCtrl.getTotalCalories();
+      //Add total calores to UI
+      UICtrl.showTotalCalories(totalCalories);
       //clear input fields
       UICtrl.clearInputFields();
     }
@@ -144,6 +173,8 @@ const AppCtrl = (function(ItemCtrl, UICtrl) {
   return {
     init: function(){
       console.log("Initializing App ...")
+      //clear edit state
+      UICtrl.setInitialUIState();
       //Fetch items from data structure
       const items = ItemCtrl.getItems();
       //check if any items in data
@@ -153,6 +184,11 @@ const AppCtrl = (function(ItemCtrl, UICtrl) {
         //Populate list with items
         UICtrl.populateItemList(items)
       }
+
+      //Get total calories
+      const totalCalories = ItemCtrl.getTotalCalories();
+      //Add total calores to UI
+      UICtrl.showTotalCalories(totalCalories);
 
       loadEventListeners();
     }
