@@ -42,6 +42,21 @@ const ItemCtrl = (function() {
 
       return newItem;
     },
+    getItemById: function(id){
+      let found=null;
+      data.items.forEach(item=>{
+        if (item.id === id) {
+          found = item
+        }
+      })
+      return found;
+    },
+    setCurrentItem: function(item){
+      data.currentItem = item;
+    },
+    getCurrentItem: function(){
+      return data.currentItem;
+    },
     getTotalCalories: function(){
       let total = 0;
       data.items.forEach(item =>{
@@ -113,6 +128,11 @@ const UICtrl = (function() {
       UISelectors.itemNameInput.value = '';
       UISelectors.itemCaloriesInput.value = '';
     },
+    addItemToEditForm: function(){
+      UISelectors.itemNameInput.value = ItemCtrl.getCurrentItem().name;
+      UISelectors.itemCaloriesInput.value = ItemCtrl.getCurrentItem().calories;      
+      UICtrl.showEditState();
+    },
     hideEmptyList: function(){
       UISelectors.itemList.style.display = 'none';
     },
@@ -125,6 +145,12 @@ const UICtrl = (function() {
       UISelectors.updateBtn.style.display = 'none';
       UISelectors.deleteBtn.style.display = 'none';
       UISelectors.backBtn.style.display = 'none';
+    },
+    showEditState: function(){ //func to show edit state / edit buttons
+      UISelectors.addBtn.style.display = 'none';
+      UISelectors.updateBtn.style.display = 'inline';
+      UISelectors.deleteBtn.style.display = 'inline';
+      UISelectors.backBtn.style.display = 'inline';
     },
     getUISelectors: function(){
       return UISelectors;
@@ -144,6 +170,9 @@ const AppCtrl = (function(ItemCtrl, UICtrl) {
 
     // Add item events
     UISelectors.addBtn.addEventListener("click", itemAddSubmit);
+
+    //Edit-icon click event
+    UISelectors.itemList.addEventListener('click', itemEditClick);
   }
   //Add item submit func
   const itemAddSubmit = function(e){
@@ -162,17 +191,32 @@ const AppCtrl = (function(ItemCtrl, UICtrl) {
       //clear input fields
       UICtrl.clearInputFields();
     }
-
-
     e.preventDefault();
   }
+  //Add item update/edit func
+  const itemEditClick = function(e){
+    if (e.target.classList.contains("edit-item")) {
+      //get the list item ID
+      const listId = e.target.parentNode.parentNode.id;
+      //Break into array . ex. 'item-1', 'item2'
+      const listIdArr = listId.split('-')
+      //get the actual id, the second part of splitted string
+      const id = parseInt(listIdArr[1]);
+      //get full item to be editted
+      const itemToEdit = ItemCtrl.getItemById(id);
+      //set current Item
+      ItemCtrl.setCurrentItem(itemToEdit);
+      //add item/current Item to form to be eddited
+      UICtrl.addItemToEditForm();
+    }
 
+    e.preventDefault()
+  }
 
 
   //Public Methods
   return {
     init: function(){
-      console.log("Initializing App ...")
       //clear edit state
       UICtrl.setInitialUIState();
       //Fetch items from data structure
