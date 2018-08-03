@@ -71,6 +71,9 @@ const ItemCtrl = (function() {
       })
       data.items = ids;
     },
+    clearAllItems: function(){
+      data.items = [];
+    },
     setCurrentItem: function(item){
       data.currentItem = item;
     },
@@ -105,6 +108,7 @@ const UICtrl = (function() {
     updateBtn: document.querySelector(".update-btn"),
     deleteBtn: document.querySelector(".delete-btn"),
     backBtn: document.querySelector(".back-btn"),
+    clearBtn: document.querySelector(".clear-btn"),
     itemNameInput: document.querySelector("#item-name"),
     itemCaloriesInput: document.querySelector("#item-calories"),
     totalCalories: document.querySelector(".total-calories"),
@@ -165,6 +169,15 @@ const UICtrl = (function() {
       const itemToDelete = document.querySelector(`#item-${id}`)
       itemToDelete.remove();
 
+    },
+    removeAllItems: function(){
+      let listItems = document.querySelectorAll(UISelectors.listItems);
+      //Turn NodelIst to an array;
+      listItems = Array.from(listItems);
+
+      listItems.forEach(item=>{
+        item.remove();
+      })
     },
     clearInputFields: function(){
       UISelectors.itemNameInput.value = '';
@@ -227,8 +240,11 @@ const AppCtrl = (function(ItemCtrl, UICtrl) {
     UISelectors.updateBtn.addEventListener('click', itemUpdateSubmit);
     //Delete item event
     UISelectors.deleteBtn.addEventListener('click', itemDeleteSubmit);
+    
     //Back button event
     UISelectors.backBtn.addEventListener('click', UICtrl.setInitialUIState);
+    //Clear all button event
+    UISelectors.clearBtn.addEventListener('click', clearAllItemsClick);
   }
   //EVENT LISTENERS FUNCTIONS ///
   //Add item submit func
@@ -305,6 +321,19 @@ const AppCtrl = (function(ItemCtrl, UICtrl) {
     UICtrl.setInitialUIState();
 
     e.preventDefault();
+  }
+  const clearAllItemsClick = function(){
+    //Delete all items from data structure
+    ItemCtrl.clearAllItems();
+    // remove from UI
+    UICtrl.removeAllItems();
+
+    //Get total calories
+    const totalCalories = ItemCtrl.getTotalCalories();
+    //Add total calores to UI
+    UICtrl.showTotalCalories(totalCalories);
+    //Hide the UI
+    UICtrl.hideEmptyList()
   }
 
   //Public Methods
