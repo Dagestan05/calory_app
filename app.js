@@ -214,6 +214,8 @@ const AppCtrl = (function(ItemCtrl, UICtrl) {
     UISelectors.itemList.addEventListener('click', itemEditClick);
     //Update item event
     UISelectors.updateBtn.addEventListener('click', itemUpdateSubmit);
+    //Back button event
+    UISelectors.backBtn.addEventListener('click', UICtrl.setInitialUIState);
   }
   //EVENT LISTENERS FUNCTIONS ///
   //Add item submit func
